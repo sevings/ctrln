@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/zpatrick/go-config"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,13 @@ import (
 )
 
 func main() {
+	toml := config.NewTOMLFile("./config.toml")
+	loader := config.NewOnceLoader(toml)
+	conf := config.NewConfig([]config.Provider{loader})
+	if err := conf.Load(); err != nil {
+		log.Fatal(err)
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -19,7 +27,11 @@ func main() {
 	router.Static("/assets/", "./web/assets/")
 	router.StaticFile("/", "./web/sensors.html")
 
-	addr := ":8080" //mdw.ConfigString("listen_address")
+	addr, err := conf.String("http")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: router,
