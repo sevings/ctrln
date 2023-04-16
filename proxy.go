@@ -1,31 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
-	"strings"
 	"sync"
 )
-
-type Sensor struct {
-	Group  string `json:"group"`
-	Sensor string `json:"sensor"`
-	Status string `json:"status"`
-}
 
 type proxy struct {
 	updChans map[string]chan []byte
 	guard    sync.Mutex
 	mqttCli  mqtt.Client
+	format   MessageFormatter
+}
+
+type MessageFormatter interface {
+	FormatMessage(topic string, payload []byte) []byte
+}
+
+type DefaultFormatter struct {
+}
+
+func (df DefaultFormatter) FormatMessage(topic string, payload []byte) []byte {
+	return []byte(fmt.Sprintf(`Topic: "%s", payload: "%s"`, topic, payload))
 }
 
 func newProxy(address, id string) *proxy {
 	p := &proxy{
 		updChans: make(map[string]chan []byte),
+		format:   DefaultFormatter{},
 	}
 
 	opts := mqtt.NewClientOptions()
@@ -57,6 +62,10 @@ func (p *proxy) rmChan(id string) {
 	delete(p.updChans, id)
 }
 
+func (p *proxy) SetFormatter(format MessageFormatter) {
+	p.format = format
+}
+
 func (p *proxy) Connect() error {
 	token := p.mqttCli.Connect()
 	token.Wait()
@@ -71,23 +80,10 @@ func (p *proxy) Subscribe(topic string) error {
 
 func (p *proxy) mqttHandler() func(client mqtt.Client, msg mqtt.Message) {
 	return func(client mqtt.Client, msg mqtt.Message) {
-		topic := strings.Split(msg.Topic(), "/")
-		if len(topic) != 3 {
+		upd := p.format.FormatMessage(msg.Topic(), msg.Payload())
+		if upd == nil {
 			return
 		}
-
-		sensor := Sensor{
-			Group:  topic[1],
-			Sensor: topic[2],
-			Status: string(msg.Payload()),
-		}
-		upd, err := json.Marshal(sensor)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		fmt.Println(string(upd))
 
 		p.guard.Lock()
 		defer p.guard.Unlock()
