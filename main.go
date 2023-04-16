@@ -19,6 +19,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mqttAddr, err := conf.String("mqtt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mqttToWs := newProxy(mqttAddr, "sevings")
+	err = mqttToWs.Connect()
+	if err != nil {
+		panic(err)
+	}
+
+	err = mqttToWs.Subscribe("sensors/#")
+	if err != nil {
+		panic(err)
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -26,6 +42,7 @@ func main() {
 
 	router.Static("/assets/", "./web/assets/")
 	router.StaticFile("/", "./web/sensors.html")
+	router.GET("/ws", mqttToWs.WsHandler())
 
 	addr, err := conf.String("http")
 	if err != nil {
