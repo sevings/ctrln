@@ -24,7 +24,7 @@ func main() {
 	}
 
 	mqttToWs := newProxy(mqttAddr, "sevings")
-	mqttToWs.SetFormatter(SensorFormatter{})
+	mqttToWs.SetFormatter(NewSensorFormatter())
 	err = mqttToWs.Connect()
 	if err != nil {
 		log.Fatal(err)

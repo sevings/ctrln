@@ -18,6 +18,7 @@ type proxy struct {
 
 type MessageFormatter interface {
 	FormatMessage(topic string, payload []byte) []byte
+	MessagesOnConnect() [][]byte
 }
 
 type DefaultFormatter struct {
@@ -25,6 +26,10 @@ type DefaultFormatter struct {
 
 func (df DefaultFormatter) FormatMessage(topic string, payload []byte) []byte {
 	return []byte(fmt.Sprintf(`Topic: "%s", payload: "%s"`, topic, payload))
+}
+
+func (df DefaultFormatter) MessagesOnConnect() [][]byte {
+	return nil
 }
 
 func newProxy(address, id string) *proxy {
@@ -114,6 +119,15 @@ func (p *proxy) WsHandler() func(ctx *gin.Context) {
 
 		updates := p.addChan(addr)
 		defer p.rmChan(addr)
+
+		msgs := p.format.MessagesOnConnect()
+		for _, msg := range msgs {
+			err = conn.WriteMessage(websocket.TextMessage, msg)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+		}
 
 		for upd := range updates {
 			err = conn.WriteMessage(websocket.TextMessage, upd)
