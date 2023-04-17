@@ -1,11 +1,12 @@
 function connectWebsocket() {
-    const host = document.location.host;
-    const socket = new WebSocket("ws://" + host + "/ws");
+    const socket = new WebSocket("ws://" + document.location.host + "/ws");
     socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data);
         const card = document.getElementById(data.sensor);
         if(!card)
             return;
+
+        card.classList.toggle("bg-danger", !!data.critical);
 
         const body = card.getElementsByClassName("card-body");
         if(!body)
