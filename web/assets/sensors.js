@@ -2,17 +2,24 @@ function connectWebsocket() {
     const socket = new WebSocket("ws://" + document.location.host + "/ws");
     socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data);
+        if(data.sensor === "enable") {
+            switchGroupElement(data.group, data.status);
+            return;
+        }
+
         const card = document.getElementById(data.sensor);
         if(!card)
             return;
 
         card.classList.toggle("bg-danger", !!data.critical);
 
-        const body = card.getElementsByClassName("card-body");
-        if(!body)
-            return;
+        const group = card.closest(".col");
+        const isSafe = !group.querySelector(".card.bg-danger");
+        const button = group.getElementsByTagName("button")[0];
+        button.disabled = isSafe;
 
-        body[0].innerHTML = data.status;
+        const body = card.getElementsByClassName("card-body")[0];
+        body.innerHTML = data.status;
     });
 }
 
@@ -38,7 +45,7 @@ function initRenameModal() {
         const group = col.id;
 
         form.dataset.sensor = sensor;
-        form.action = "/" + group + "/" + sensor;
+        form.action = "/" + group + "/" + sensor + "/name";
         input.value = name;
     });
 
@@ -87,3 +94,42 @@ function loadSensorNames() {
 }
 
 document.addEventListener("DOMContentLoaded", loadSensorNames);
+
+function initDisableButtons() {
+    const switchGroup = function (event) {
+        const button = event.currentTarget;
+        const card = button.closest(".card");
+        const status = card.dataset.status === "on" ? "off" : "on";
+        const group = card.closest(".col").id;
+
+        const url = "/" + group + "/" + status;
+        fetch(url, {
+            method: "post"
+        });
+
+        switchGroupElement(group, status);
+    };
+
+    const groupButtons = document.getElementsByClassName("switch-group");
+    for(let i = 0; i < groupButtons.length; i++) {
+        groupButtons[i].addEventListener("click", switchGroup);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", initDisableButtons);
+
+function switchGroupElement(group, status) {
+    const col = document.getElementById(group);
+    const button = col.getElementsByTagName("button")[0];
+    const card = button.closest(".card");
+    card.dataset.status = status;
+
+    const body = card.getElementsByClassName("card-body")[0];
+    if(status === "on") {
+        body.innerHTML = "enabled";
+        button.innerHTML = "Turn off";
+    } else if(status === "off") {
+        body.innerHTML = "disabled";
+        button.innerHTML = "Turn on";
+    }
+}

@@ -52,8 +52,6 @@ func (sf *SensorFormatter) FormatMessage(topic string, payload []byte) []byte {
 		return nil
 	}
 
-	fmt.Println(string(upd))
-
 	sf.guard.Lock()
 	defer sf.guard.Unlock()
 

@@ -11,8 +11,21 @@ import (
 type server struct {
 	router *gin.Engine
 	server *http.Server
+	emit   Emitter
 	names  map[string]map[string]string
 	guard  sync.RWMutex
+}
+
+type Emitter interface {
+	Emit(message string, args ...interface{}) error
+}
+
+type ConsoleEmitter struct {
+}
+
+func (ce ConsoleEmitter) Emit(message string, args ...interface{}) error {
+	log.Println("emit:", message, args)
+	return nil
 }
 
 func newServer(address string) *server {
@@ -25,19 +38,26 @@ func newServer(address string) *server {
 			Addr:    address,
 			Handler: router,
 		},
+		emit:  ConsoleEmitter{},
 		names: make(map[string]map[string]string),
 	}
 
 	router.Static("/assets/", "./web/assets/")
 	router.StaticFile("/", "./web/sensors.html")
-	router.POST("/:group/:sensor", srv.postSensorHandler())
+	router.POST("/:group/:sensor/name", srv.postSensorHandler())
 	router.GET("/sensors", srv.getSensorsHandler())
+	router.POST("/:group/on", srv.switchGroupHandler("on"))
+	router.POST("/:group/off", srv.switchGroupHandler("off"))
 
 	return srv
 }
 
 func (srv *server) SetWsHandler(handler gin.HandlerFunc) {
 	srv.router.GET("/ws", handler)
+}
+
+func (srv *server) SetEmitter(emit Emitter) {
+	srv.emit = emit
 }
 
 func (srv *server) Listen() {
@@ -80,5 +100,26 @@ func (srv *server) getSensorsHandler() gin.HandlerFunc {
 		defer srv.guard.RUnlock()
 
 		ctx.JSON(200, srv.names)
+	}
+}
+
+type switchGroupMsg struct {
+	Group string `json:"group"`
+	Value string `json:"value"`
+}
+
+func (srv *server) switchGroupHandler(value string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		msg := switchGroupMsg{
+			Group: ctx.Param("group"),
+			Value: value,
+		}
+
+		err := srv.emit.Emit("enable", msg)
+		if err != nil {
+			log.Println(err)
+		}
+
+		ctx.Status(200)
 	}
 }

@@ -45,6 +45,19 @@ func main() {
 	srv := newServer(httpAddr)
 	srv.SetWsHandler(mqttToWs.WsHandler())
 
+	//ioAddr, err := conf.String("socket_io")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//ioOpts := &socketio_client.Options{}
+	//io, err := socketio_client.NewClient(ioAddr, ioOpts)
+	//if err != nil {
+	//	log.Fatal("io: ", err)
+	//}
+
+	//srv.SetEmitter(io)
+
 	log.Println("Serving web at " + httpAddr)
 	go srv.Listen()
 
