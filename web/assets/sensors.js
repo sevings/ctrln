@@ -20,6 +20,12 @@ function connectWebsocket() {
 
         const body = card.getElementsByClassName("card-body")[0];
         body.innerHTML = data.status;
+
+        if(data.critical) {
+            const footer = card.getElementsByClassName("card-footer")[0];
+            const link = footer.getElementsByTagName("a")[0];
+            showToast(link.innerHTML, data.status);
+        }
     });
 }
 
@@ -132,4 +138,17 @@ function switchGroupElement(group, status) {
         body.innerHTML = "disabled";
         button.innerHTML = "Turn on";
     }
+}
+
+function initToast() {
+    const toastEl = document.getElementsByClassName("toast")[0];
+    window.toast = new bootstrap.Toast(toastEl);
+}
+
+document.addEventListener("DOMContentLoaded", initToast);
+
+function showToast(name, status) {
+    const body = document.getElementsByClassName("toast-body")[0];
+    body.innerHTML = name + ": " + status;
+    window.toast.show();
 }
