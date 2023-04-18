@@ -11,77 +11,123 @@
   <body>
     <div class="container text-center">
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4" data-masonry='{ "itemSelector": ".col" }'>
-        <div id="group_0xAAD" class="col">
+        <div id="0xAAD" class="col">
           <div id="lum_bathroom" class="card my-3">
             <img src="assets/light.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Light">
             <div class="card-body text-center">0 Lux</div>
-            <div class="card-footer">lum_bathroom</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">lum_bathroom</a>
+            </div>
           </div>
           <div id="lum_bedroom" class="card my-3">
             <img src="assets/light.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Light">
             <div class="card-body text-center">0 Lux</div>
-            <div class="card-footer">lum_bedroom</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">lum_bedroom</a>
+            </div>
           </div>
           <div id="lum_kitchen" class="card my-3">
             <img src="assets/light.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Light">
             <div class="card-body text-center">0 Lux</div>
-            <div class="card-footer">lum_kitchen</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">lum_kitchen</a>
+            </div>
           </div>
           <div id="lum_entrance" class="card my-3">
             <img src="assets/light.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Light">
             <div class="card-body text-center">0 Lux</div>
-            <div class="card-footer">lum_entrance</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">lum_entrance</a>
+            </div>
           </div>
           <button class="btn btn-primary my-3" type="button" disabled>Turn off</button>
         </div>
 
-        <div id="group_0XDFA" class="col">
+        <div id="0XDFA" class="col">
           <div id="temp_boiler" class="card my-3">
             <img src="assets/energy.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Temp">
             <div class="card-body text-center">0 C</div>
-            <div class="card-footer">temp_boiler</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">temp_boiler</a>
+            </div>
           </div>
           <div id="temp_floor" class="card my-3">
             <img src="assets/energy.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Temp">
             <div class="card-body text-center">0 C</div>
-            <div class="card-footer">temp_floor</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">temp_floor</a>
+            </div>
           </div>
           <button class="btn btn-primary my-3" type="button" disabled>Turn off</button>
         </div>
 
-        <div id="group_0XEDD" class="col">
+        <div id="0XEDD" class="col">
           <div id="entrance" class="card my-3">
             <img src="assets/switch.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Switch">
             <div class="card-body text-center">closed</div>
-            <div class="card-footer">entrance</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">entrance</a>
+            </div>
           </div>
           <div id="window" class="card my-3">
             <img src="assets/switch.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Switch">
             <div class="card-body text-center">closed</div>
-            <div class="card-footer">window</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">window</a>
+            </div>
           </div>
           <div id="backyard" class="card my-3">
             <img src="assets/switch.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Switch">
             <div class="card-body text-center">closed</div>
-            <div class="card-footer">backyard</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">backyard</a>
+            </div>
           </div>
           <button class="btn btn-primary my-3" type="button" disabled>Turn off</button>
         </div>
 
-        <div id="group_0XBNA" class="col">
+        <div id="0XBNA" class="col">
           <div id="sockets_cellar" class="card my-3">
             <img src="assets/thermometer.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Socket">
             <div class="card-body text-center">0 V</div>
-            <div class="card-footer">sockets_cellar</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">sockets_cellar</a>
+            </div>
           </div>
           <div id="sockets_common" class="card my-3">
             <img src="assets/thermometer.png" class="card-img-top my-5 mx-auto w-25 h-25" alt="Socket">
             <div class="card-body text-center">0 V</div>
-            <div class="card-footer">sockets_common</div>
+            <div class="card-footer">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#renameModal">sockets_common</a>
+            </div>
           </div>
           <button class="btn btn-primary my-3" type="button" disabled>Turn off</button>
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Rename sensor</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="">
+              <div class="mb-3">
+                <label for="inputName" class="form-label">New sensor name</label>
+                <input type="text" class="form-control" id="inputName" name="name">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button id="saveName" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>

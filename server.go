@@ -5,12 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"sync"
 )
 
 type server struct {
 	router *gin.Engine
 	server *http.Server
 	names  map[string]map[string]string
+	guard  sync.RWMutex
 }
 
 func newServer(address string) *server {
@@ -28,8 +30,8 @@ func newServer(address string) *server {
 
 	router.Static("/assets/", "./web/assets/")
 	router.StaticFile("/", "./web/sensors.html")
-	router.POST("/[group]/[sensor]", srv.postSensorHandler())
-	router.GET("/sensors")
+	router.POST("/:group/:sensor", srv.postSensorHandler())
+	router.GET("/sensors", srv.getSensorsHandler())
 
 	return srv
 }
@@ -58,11 +60,13 @@ func (srv *server) postSensorHandler() gin.HandlerFunc {
 		sensor := ctx.Param("sensor")
 		name := ctx.PostForm("name")
 
+		srv.guard.Lock()
+		defer srv.guard.Unlock()
+
 		groupMap, ok := srv.names[group]
-		_, ok = groupMap[sensor]
 		if !ok {
-			ctx.AbortWithStatus(400)
-			return
+			groupMap = make(map[string]string)
+			srv.names[group] = groupMap
 		}
 
 		groupMap[sensor] = name
@@ -72,6 +76,9 @@ func (srv *server) postSensorHandler() gin.HandlerFunc {
 
 func (srv *server) getSensorsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		srv.guard.RLock()
+		defer srv.guard.RUnlock()
+
 		ctx.JSON(200, srv.names)
 	}
 }
