@@ -5,15 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"sync"
 )
 
 type server struct {
 	router *gin.Engine
 	server *http.Server
 	emit   Emitter
-	names  map[string]map[string]string
-	guard  sync.RWMutex
+	names  Names
 }
 
 type Emitter interface {
@@ -28,6 +26,11 @@ func (ce ConsoleEmitter) Emit(message string, args ...interface{}) error {
 	return nil
 }
 
+type Names interface {
+	SetName(group, sensor, name string)
+	GetJSON() []byte
+}
+
 func newServer(address string) *server {
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -39,7 +42,7 @@ func newServer(address string) *server {
 			Handler: router,
 		},
 		emit:  ConsoleEmitter{},
-		names: make(map[string]map[string]string),
+		names: NewSensorNameStorage(),
 	}
 
 	router.Static("/assets/", "./web/assets/")
@@ -80,26 +83,22 @@ func (srv *server) postSensorHandler() gin.HandlerFunc {
 		sensor := ctx.Param("sensor")
 		name := ctx.PostForm("name")
 
-		srv.guard.Lock()
-		defer srv.guard.Unlock()
+		srv.names.SetName(group, sensor, name)
 
-		groupMap, ok := srv.names[group]
-		if !ok {
-			groupMap = make(map[string]string)
-			srv.names[group] = groupMap
-		}
-
-		groupMap[sensor] = name
 		ctx.Status(200)
 	}
 }
 
 func (srv *server) getSensorsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		srv.guard.RLock()
-		defer srv.guard.RUnlock()
+		ctx.Status(200)
+		ctx.Header("Content-Type", "application/json")
 
-		ctx.JSON(200, srv.names)
+		data := srv.names.GetJSON()
+		_, err := ctx.Writer.Write(data)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
